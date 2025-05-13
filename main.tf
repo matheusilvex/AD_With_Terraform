@@ -13,8 +13,8 @@ provider "azurerm" {
 
 module "resource_group"{
     source = "./modules/azurerm_resource_group"
-    rg_name = "RG-Terraform-POC"
-    rg_location = "centralus"
+    rg_name = local.resource_group
+    rg_location = var.location
 }
 
 module "virtual_network"{
@@ -22,8 +22,8 @@ module "virtual_network"{
     source = "./modules/azurerm_virtual_network"
     location = module.resource_group.resource_group_location
     rg_name = module.resource_group.resource_group_name
-    vnet_name = "VNET-HUB-PRD"
-    snet_name = "SNET-HUB-PRD"
+    vnet_name = local.vnet_name
+    snet_name = local.snet_name
     dnsServer = ["10.0.1.4", "168.63.129.16"]
 }
 
@@ -35,8 +35,8 @@ module "windows_vm"{
     rg_location = module.resource_group.resource_group_location
     vm_prefix = "VM-${count.index}"
     vnet_snet-id = module.virtual_network.snet_id
-    admin_name = "admt"
-    admin_pass= "6chh+*O9mP)l7"
+    admin_name = local.vm_admin_user
+    admin_pass= local.vm_admin_pass
     
 }
 
@@ -75,8 +75,8 @@ resource "azurerm_virtual_machine_extension" "install_ad" {
 data "template_file" "ADDS" {
     template = "${file("createAD.ps1")}"
     vars = {
-        Domain_DNSName          = "${var.Domain_DNSName}"
-        SafeModeAdministratorPassword = "${var.SafeModeAdministratorPassword}"
+        Domain_DNSName          = "${local.domain_name}"
+        SafeModeAdministratorPassword = "${local.domain_password}"
   }
 }
 
@@ -102,7 +102,7 @@ resource "azurerm_virtual_machine_extension" "join_domain" {
 data "template_file" "ADDS-Join" {
     template = "${file("join_domain.ps1")}"
     vars = {
-        DomainAdminUser          = "${var.DomainAdminUser}"
-        DomainAdminPassword = "${var.SafeModeAdministratorPassword}"
+        Domain_DNSName          = "${local.domain_name}"
+        SafeModeAdministratorPassword = "${local.domain_password}"
   }
 }

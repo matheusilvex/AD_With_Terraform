@@ -20,6 +20,7 @@ Este projeto utiliza **Terraform com módulos** para provisionar uma infraestrut
 - Conta no Azure com permissões para criar recursos
 - Azure CLI autenticado (`az login`)
 - SSH key ou senha para as VMs
+- Preencha ou ajuste as variáveis no variables.auto.tfvars:
 
 📌 Observações
 A junção ao domínio é feita via script de provisionamento remoto (usando WinRM)
