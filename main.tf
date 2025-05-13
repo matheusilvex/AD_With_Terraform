@@ -30,7 +30,7 @@ module "virtual_network"{
 module "windows_vm"{
     depends_on = [module.virtual_network]
     source = "./modules/azurerm_windows_virtual_machine"
-    count = 1 #Numero de VM que vai criar
+    count = local.vm_count #Numero de VM que vai criar
     rg_name = module.resource_group.resource_group_name
     rg_location = module.resource_group.resource_group_location
     vm_prefix = "VM-${count.index}"
