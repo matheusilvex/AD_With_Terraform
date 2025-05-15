@@ -8,12 +8,12 @@ provider "azurerm" {
             prevent_deletion_if_contains_resources = false
         }
     }
-    subscription_id = "<Insert Your Subscription ID>"
+    subscription_id = var.subscription
 }
 
 module "resource_group"{
     source = "./modules/azurerm_resource_group"
-    rg_name = local.resource_group
+    rg_name = var.resource_group
     rg_location = var.location
 }
 
@@ -22,21 +22,21 @@ module "virtual_network"{
     source = "./modules/azurerm_virtual_network"
     location = module.resource_group.resource_group_location
     rg_name = module.resource_group.resource_group_name
-    vnet_name = local.vnet_name
-    snet_name = local.snet_name
+    vnet_name = var.vnet_name
+    snet_name = var.snet_name
     dnsServer = ["10.0.1.4", "168.63.129.16"]
 }
 
 module "windows_vm"{
     depends_on = [module.virtual_network]
     source = "./modules/azurerm_windows_virtual_machine"
-    count = local.vm_count #Numero de VM que vai criar
+    count = var.vm_count #Numero de VM que vai criar
     rg_name = module.resource_group.resource_group_name
     rg_location = module.resource_group.resource_group_location
-    vm_prefix = "VM-${count.index}"
+    vm_prefix = "VM-MABS-${count.index}"
     vnet_snet-id = module.virtual_network.snet_id
-    admin_name = local.vm_admin_user
-    admin_pass= local.vm_admin_pass
+    admin_name = var.vm_admin_user
+    admin_pass= var.vm_admin_pass
     
 }
 
@@ -75,8 +75,8 @@ resource "azurerm_virtual_machine_extension" "install_ad" {
 data "template_file" "ADDS" {
     template = "${file("createAD.ps1")}"
     vars = {
-        Domain_DNSName          = "${local.domain_name}"
-        SafeModeAdministratorPassword = "${local.domain_password}"
+        Domain_DNSName          = "${var.Domain_DNSName}"
+        SafeModeAdministratorPassword = "${var.SafeModeAdministratorPassword}"
   }
 }
 
@@ -102,7 +102,8 @@ resource "azurerm_virtual_machine_extension" "join_domain" {
 data "template_file" "ADDS-Join" {
     template = "${file("join_domain.ps1")}"
     vars = {
-        Domain_DNSName          = "${local.domain_name}"
-        SafeModeAdministratorPassword = "${local.domain_password}"
+        Domain_DNSName          = "${var.Domain_DNSName}"
+        DomainAdminUser         = "${var.DomainAdminUser}"
+        DomainAdminPassword = "${var.SafeModeAdministratorPassword}"
   }
 }

@@ -18,3 +18,36 @@ variable "DomainAdminUser"{
   default = "admt"
   sensitive = true
 }
+
+variable "subscription"{
+  description = "ID da Assinatura"
+  type = string
+}
+
+variable "location"{
+  type = string
+}
+
+variable "resource_group"{
+  type = string
+}
+
+variable "vnet_name"{
+  type = string
+}
+
+variable "snet_name"{
+  type = string
+}
+
+variable vm_count{
+  type = number
+}
+
+variable vm_admin_pass{
+  type = string
+}
+
+variable vm_admin_user{
+  type = string
+}
